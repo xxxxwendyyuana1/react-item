@@ -1,0 +1,383 @@
+React生命周期 
+   componentDidMount()               组件渲染完成
+   componentWillMount()               组件将要挂载
+   componentWillUpdate()              数据将要更新前
+   componentDidUpdate()              数据更新结束
+   shouldComponentUpdate()        数据应该更新么？ false  阻止组件更新渲染  true 允许组件重新渲染
+   componentWillUnmount()          组件将要卸载
+   componentWillReceiveProps()    组件接受新的props时调用
+   render()                                         组件渲染
+
+
+
+ 生命周期
+一 、初始化
+1、getDefaultProps()
+   设置默认的props，也可以用dufaultProps设置组件的默认属性.
+2、getInitialState()
+在使用es6的class语法时是没有这个钩子函数的，可以直接在constructor中定义this.state。此时可以访问this.props
+
+3、componentWillMount()
+组件初始化时只调用，以后组件更新不调用，整个生命周期只调用一次，此时可以修改state。
+
+4、 render()
+react最重要的步骤，创建虚拟dom，进行diff算法，更新dom树都在此进行。此时就不能更改state了
+
+5、componentDidMount()
+组件渲染之后调用，只调用一次。
+      
+二 、更新
+6、componentWillReceiveProps(nextProps)
+组件初始化时不调用，组件接受新的props时调用。
+
+7、shouldComponentUpdate(nextProps, nextState)
+react性能优化非常重要的一环。组件接受新的state或者props时调用，
+我们可以设置在此对比前后两个props和state是否相同，如果相同则返回false阻止更新，
+因为相同的属性状态一定会生成相同的dom树，这样就不需要创造新的dom树和旧的dom树进行diff算法对比，节省大量性能，尤其是在dom结构复杂的时候
+
+8、componentWillUpdata(nextProps, nextState)
+组件初始化时不调用，只有在组件将要更新时才调用，此时可以修改state9、render()组件
+10、componentDidUpdate()
+组件初始化时不调用，组件更新完成后调用，此时可以获取dom节点。
+    
+三 、卸载
+11、componentWillUnmount()
+组件将要卸载时调用，一些事件监听和定时器需要在此时清除。
+
+
+参考网站：
+印记中文
+https://docschina.org/#react
+
+
+React Router 引入有两种方式，react-router 和 react-router-dom，
+多数时候，我们使用的是react-router-dom包，
+因为它包括了一些便于路由实现的DOM组件，如NavLink
+
+理解好 HashRouter(Hash模式)、BrowserRouter(history模式)、NavLink、Link、Route、Switch、Redirect、 Prompt概念
+
+官网中推荐使用BrowserRouter
+
+<BrowserRouter> 使用 HTML5 提供的 history API (pushState, replaceState 和 popstate 事件) 来保持 UI 和 URL 的同步。
+
+<HashRouter> 使用 URL 的 hash 部分（即 window.location.hash）来保持 UI 和 URL 的同步。
+
+关于选择HashRouter还是BrowserRouter？
+官网中推荐使用BrowserRouter，但出于个人实际项目开发经验及兼容性的考虑，还是建议使用HashRouter。
+首先BrowserRouter是基于HTML5的，对旧式的浏览器不一定支持，
+其次，BrowserRouter?在build后，打包出来的文件路由是对服务器的目录是有严格要求的，
+比如把打包出来的文件放到了服务器的root/project/目录下，
+若在BrowserRouter?中没有配置基准 URL，将会访问不到页面资源。
+有人说为什么在本地开发是没有问题的？那是因为在本地开发时，webpack.config.js中使用 webpack-dev-server 已经做了配置。
+
+<Link> 为你的应用提供声明式的、可访问的导航链接。
+
+<NavLink>一个特殊版本的 <Link>，它会在与当前 URL 匹配时为其呈现元素添加样式属性。
+const activeStyle = {
+  fontWeight: 'bold',
+  color: 'red'
+};
+<NavLink to="/faq" activeStyle={activeStyle}>FAQs</NavLink>
+
+<Route>是指与<Link>的to设置的路径匹配时，显示其指定的组件。
+注意，<Route path='/'>表示起始页，它与所有的<Link>都会匹配到
+需要用到exact和<switch>实现严格模式匹配和只渲染一次
+
+Route有三种组件的渲染方式：
+
+<Route component> 拿不到匹配信息
+<Route render>    拿不到匹配信息
+<Route children>  能拿到匹配信息
+三种渲染方式都将提供相同的Route Props：
+
+match
+location
+history
+如组件里可以通过this.props.match获取匹配信息；通过this.props.history.push(path)实现路由页面跳转，若需传递参数。path可以换成Object，参数与<Link>中to传递对象参数相同。
+
+<Switch>用于渲染与路径匹配的第一个子 <Route> 或 <Redirect>。<Switch> 只会渲染一个路由。
+
+<Redirect> 会导航到一个新的位置。新的位置将覆盖历史堆栈中的当前条目 重定向
+
+<Prompt>
+用于在位置跳转之前给予用户一些确认信息
+import { Prompt } from 'react-router-dom';
+<Prompt
+  when={formIsHalfFilledOut}
+  message="你确定要离开当前页面吗？"
+/>
+
+
+
+react 路由传参  
+   方式 一：
+         通过params
+
+	1.路由表中      
+              <Route path=' /test/:id '   component={test}></Route>
+　　　　　　　　　　　
+        2.Link处        
+            HTML方式
+                 <Link to={ ' /test/ ' + ' 2 ' }  activeClassName='active'>XXXX</Link>          　　　　
+　　　　　　　　　　　
+          JS方式
+                this.props.history.push(  '/user/'+'2'  )
+　　　　　　　　　　　
+        3.user页面       
+               通过  this.props.match.params.id       就可以接受到传递过来的参数（id）
+
+
+	方式 二：
+         通过query
+                前提：必须由其他页面跳过来，参数才会被传递过来
+　　　     注：不需要配置路由表。路由表中的内容照常：<Route path='/test' component={test}></Route>
+        1.Link处      
+         HTML方式
+            <Link to={{ pathname: ' /test' , query : { type: 'sex' }}}>
+　　　　　　　　　　
+       JS方式
+            this.props.history.push({ pathname : '/test' ,query : { type: 'sex'} })
+
+        2.user页面     
+              this.props.location.query.sex//建议不用 刷新页面时 丢失
+     方式 三：
+        通过state
+            同query差不多，只是属性不一样，而且state传的参数是加密的，query传的参数是公开的，在地址栏
+        1.Link 处      
+          HTML方式：
+                <Link to={{ pathname : ' /test' , state : { type: 'sex' }}}> 
+                                　　
+         JS方式：
+            this.props.history.push({ pathname:'/test',state:{type: 'sex' } })
+                              　　  
+        2.user页面       
+            this.props.location.state.sex
+
+
+路由懒加载  
+可用于项目优化 会把项目分包 非路由懒加载打包后就一个资源包，加载很慢  
+路由懒加载会按照模块进行分包  所以浏览器在加载这些小资源包会很快。
+
+
+React Loadable      react-loadable
+以组件为中心的代码分割和懒加载
+
+
+
+路由切换动画
+react-transition-group和react-motion
+
+控制粒度上，react-motion好很多，react-motion麻烦的问题：没有开箱即用的动画封装
+react-motion没法使用animate.css
+
+项目只用web端：
+建议使用react-transition-group
+支持animate.css 
+
+
+
+React中事件：
+
+鼠标事件：
+
+onClick
+
+onContextMenu
+
+onDoubleClick
+
+onMouseDown
+
+onMouseEnter
+
+onMouseLeave
+
+onMouseMove
+
+onMouseOut
+
+onMouseOver
+
+onMouseUp
+
+onDrop
+
+onDrag
+
+onDragEnd
+
+onDragEnter
+
+onDragExit
+
+onDragLeave
+
+onDragOver
+
+onDragStart
+
+触摸事件：
+
+onTouchCancel
+
+onTouchEnd
+
+onTouchMove
+
+onTouchStart
+
+键盘事件：
+
+onKeyDown
+
+onKeyPress
+
+onKeyUp
+
+剪切事件：
+
+onCopy
+
+onCut
+
+onPaste
+
+表单事件：
+
+onChange
+
+onInput
+
+onSubmit
+
+焦点事件：
+
+onFocus
+
+onBlur
+
+UI事件:
+
+onScroll
+
+滚动事件：
+
+onWheel
+
+
+
+
+redux中文网
+http://cn.redux.js.org
+
+Redux是什么    ---类似的react状态管理容器  
+
+Redux 是为Reactjs的应用程序设计的JavaScript状态容器，提供可预测化的状态管理。
+
+Redux 的设计思想
+（1）Web 应用是一个状态机，视图与状态是一一对应的。
+（2）所有的状态，保存在一个对象里面。
+
+
+什么场景使用Redux
+
+
+用户的使用方式复杂
+不同身份的用户有不同的使用方式（比如普通用户和管理员）
+多个用户之间可以协作
+与服务器大量交互，或者使用了WebSocket
+View要从多个来源获取数据
+某个组件的状态，需要共享;某个状态需要在任何地方都可以拿到;一个组件需要改变全局状态;一个组件需要改变另一个组件的状态
+
+Redux核心概念
+
+1 Store 
+Store 就是保存数据的地方，你可以把它看成一个容器。整个应用只能有一个 Store。
+
+2 State
+Store对象包含所有数据。如果想得到某个时点的数据，就要对 Store 生成快照。这种时点的数据集合，就叫做 State。
+当前时刻的 State，可以通过store.getState()拿到。
+
+import { createStore } from 'redux';
+const store = createStore(fn);
+
+const state = store.getState();
+
+3 Action
+State 的变化，会导致 View 的变化。但是，用户接触不到 State，只能接触到 View。所以，State 的变化必须是 View 导致的。Action 就是 View 发出的通知，表示 State 应该要发生变化了。
+
+Action 是一个对象。其中的type属性是必须的，表示 Action 的名称。其他属性可以自由设置，社区有一个规范可以参考。
+
+const action = {
+  type: 'ADD_TODO',
+  payload: 'Learn Redux'
+};
+
+
+4  Action Creator
+View 要发送多少种消息，就会有多少种 Action。如果都手写，会很麻烦。可以定义一个函数来生成 Action，这个函数就叫 Action Creator。
+
+const ADD_TODO = '添加 TODO';
+
+function addTodo(text) {
+  return {
+    type: ADD_TODO,
+    text
+  }
+}
+
+const action = addTodo('Learn Redux');
+
+
+5 store.dispatch()
+
+store.dispatch()是 View 发出 Action 的唯一方法。
+
+import { createStore } from 'redux';
+const store = createStore(fn);
+
+store.dispatch({
+  type: 'ADD_TODO',
+  payload: 'Learn Redux'
+});
+
+Action Creator，这段代码可以改写如下。
+
+store.dispatch(addTodo('Learn Redux'));
+
+
+
+6 Reducer
+Store 收到 Action 以后，必须给出一个新的 State，这样 View 才会发生变化。这种 State 的计算过程就叫做 Reducer。
+Reducer 是一个函数，它接受 Action 和当前 State 作为参数，返回一个新的 State。
+
+const reducer = function (state, action) {
+  // ...
+  return new_state;
+};
+
+Reducer 函数最重要的特征是，它是一个纯函数。也就是说，只要是同样的输入，必定得到同样的输出。
+
+7 store.subscribe()
+Store 允许使用store.subscribe方法设置监听函数，一旦 State 发生变化，就自动执行这个函数。
+
+import { createStore } from 'redux';
+const store = createStore(reducer);
+
+store.subscribe(listener);
+
+只要把 View 的更新函数（对于 React 项目，就是组件的render方法或setState方法）放入listen，就会实现 View 的自动渲染。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
